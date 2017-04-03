@@ -89,43 +89,52 @@ namespace IOIAFDashBoard
             List<string> mthdList = new List<string>();
             mthdList = wsInv.EnumerateServiceMethods("OIMSServiceClient");
 
-            for (int i=0; i< mthdList.Count; i++)
-            Console.WriteLine(mthdList[i]);
+            for (int i = 0; i < mthdList.Count; i++)
+            {
+                //Console.WriteLine(mthdList[i]);
+            }
 
             string str = wsInv.InvokeMethod<string>("OIMSServiceClient", "GetData", new object[] { 32 });
-
             Console.WriteLine("===============================");
-            Console.WriteLine("===============================");
-            Console.WriteLine("===============================");
-
             Console.WriteLine(str);
 
-            CompositeType cmpTyp = new CompositeType();
-            cmpTyp.BoolValue = true;
-            cmpTyp.StringValue = "---venkat";
-
-            object[] objListPtr = new object[1];
-            objListPtr[0] = cmpTyp;
             dynamic cmpTyp1 = new object(); 
-            cmpTyp1= wsInv.InvokeMethod<dynamic>("OIMSServiceClient", "GetDataUsingDataContract", null); // objListPtr);
+            cmpTyp1= wsInv.InvokeMethod<dynamic>("OIMSServiceClient", "GetDataUsingDataContract", null); 
 
-            //var type = typeof(cmpTyp1);
+            var type = cmpTyp1.Type();
 
-
-            Console.WriteLine("=======comp type=====================");
-            Console.WriteLine("=======comp type=====================");
-            Console.WriteLine("=======comp type=====================");
+            Console.WriteLine("======= type=====================" + type);
 
             Console.WriteLine("cmpTyp1.BoolValue=== " + cmpTyp1.BoolValue);
             Console.WriteLine("cmpTyp1.StringValue====" + cmpTyp1.StringValue);
 
-            dynamic cmpTyp2 = new object (); 
-            cmpTyp2 = wsInv.InvokeMethod<dynamic>("OIMSServiceClient", "GetIOTNodeData", null);
+            /*dynamic cmpTyp2 = new object ();
 
-            //cmpType2 is of IOTNodeData type..
-            Console.WriteLine("cmpTyp2.iot-node-ID === " + cmpTyp2[0].strIOTNodeId);
-            Console.WriteLine("cmpTyp2. sensor Data ID === " + cmpTyp2[0].sensorData[0].sensorId);
-            Console.WriteLine("cmpTyp2. sensor Data value === " + cmpTyp2[0].sensorData[0].value);
+                      cmpTyp2 = wsInv.InvokeMethod<dynamic>("OIMSServiceClient", "GetIOTNodeData", null);
+                        //cmpType2 is of IOTNodeData type..
+                        Console.WriteLine("cmpTyp2.iot-node-ID === " + cmpTyp2[0].strIOTNodeId);
+                        Console.WriteLine("cmpTyp2. sensor Data ID === " + cmpTyp2[0].sensorData[0].sensorId);
+                        Console.WriteLine("cmpTyp2. sensor Data value === " + cmpTyp2[0].sensorData[0].value);
+            */
+            System.Uri uri1 = new Uri("http://localhost/IOTNodesvc/IOTNodesvc.svc");
+            WebServiceInvoker wsInv1 = new WebServiceInvoker(uri1);
+
+            List<string> mthdList1 = new List<string>();
+            mthdList1 = wsInv1.EnumerateServiceMethods("IOTNodesvcClient");
+
+            for (int i = 0; i < mthdList1.Count; i++)
+                Console.WriteLine(mthdList1[i]);
+
+            dynamic cmpTyp2 = new object();
+            cmpTyp2 = wsInv1.InvokeMethod<dynamic>("IOTNodesvcClient", "GetIotData", null);
+
+            Console.WriteLine("...cmpTyp2[0].StrIotNodeId===  " + cmpTyp2[0].StrIotNodeId);
+            Console.WriteLine("...cmpTyp2[0].sensorId==== " + cmpTyp2[0].SensorId);
+            Console.WriteLine("...cmpTyp2[0].value==== " + cmpTyp2[0].Value);
+            Console.WriteLine("...cmpTyp2[0].sensorId==== " + cmpTyp2[1].SensorId);
+            Console.WriteLine("...cmpTyp2[0].value==== " + cmpTyp2[1].Value);
+            Console.WriteLine("...cmpTyp2[0].sensorId==== " + cmpTyp2[2].SensorId);
+            Console.WriteLine("...cmpTyp2[0].value==== " + cmpTyp2[2].Value);
 
 
         } // AcquireOIMSData_Click method..

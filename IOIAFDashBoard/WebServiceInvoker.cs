@@ -336,7 +336,7 @@ namespace IOIAFDashBoard
                 throw new Exception("url Cannot be empty");
 
             HttpWebRequest l_http = (HttpWebRequest)WebRequest.Create(url);
-            l_http.Timeout = 5000; // Timeout after 5 seconds
+            l_http.Timeout = 50000; // Timeout after 5 seconds
             if (this.credentials == null) l_http.UseDefaultCredentials = true;
             else l_http.Credentials = this.credentials;
 
