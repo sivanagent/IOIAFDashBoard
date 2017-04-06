@@ -82,7 +82,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IOIAFDashBoardForm.cs" />
+    <Compile Include="ConfigForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConfigForm.Designer.cs">
+      <DependentUpon>ConfigForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="iniFileReader.cs" />
+    <Compile Include="IOIAFDashBoardForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="IOIAFDashBoardForm.Designer.cs">
       <DependentUpon>IOIAFDashBoardForm.cs</DependentUpon>
     </Compile>

@@ -17,235 +17,179 @@ using System.Web.Services.Discovery;
 using System.Xml;
 using System.Xml.Serialization;
 
-
 namespace IOIAFDashBoard
 {
-
-
-    public class SensorData
-    {
-        public string sensorId = new string('c', 20);
-        public string value = new string('c', 20);
-    }
-
-    public class IOTNodeData
-    {
-        public bool boolValue = true;
-        public string strIOTNodeId = "Hello ";
-        public SensorData[] sensorData;
-        public IOTNodeData()
-        {
-            sensorData = new SensorData[4];
-            sensorData[0] = new SensorData();
-            sensorData[1] = new SensorData();
-            sensorData[2] = new SensorData();
-            sensorData[3] = new SensorData();
-
-        }
-
-        public bool BoolValue
-        {
-            get { return boolValue; }
-            set { boolValue = value; }
-        }
-        public string StrIOTNodeId
-        {
-            get { return strIOTNodeId; }
-            set { strIOTNodeId = value; }
-        }
-    }
-
-    public class CompositeType
-    {
-        bool boolValue = true;
-        string stringValue = "Hello ";
-
-        public bool BoolValue
-        {
-            get { return boolValue; }
-            set { boolValue = value; }
-        }
-
-        public string StringValue
-        {
-            get { return stringValue; }
-            set { stringValue = value; }
-        }
-    }
-
-
     public partial class IOIAFDashBoard : Form
     {
+        public iniFileReader mOIMSConfigFile;
+        public string[] mListOfOIMSNode;
+        List<IOTNodeData> mListofOIMSreturnedIOTNodeData = new List<IOTNodeData>();
+
         public IOIAFDashBoard()
         {
             InitializeComponent();
+
+            //ioiafconfig.ini
+            mOIMSConfigFile = new iniFileReader();
+            mOIMSConfigFile.IniParser("d:\\ioiafconfig.ini");
+            mListOfOIMSNode = mOIMSConfigFile.EnumSection("ListofOIMS");
+
         }
 
         private void AcquireOIMSData_Click(object sender, EventArgs e)
         {
-            System.Uri uri= new Uri ("http://localhost/OIMS/OIMSService.svc");
-            WebServiceInvoker wsInv = new WebServiceInvoker(uri);
+            
+            clearDashboard();
 
-            List<string> mthdList = new List<string>();
-            mthdList = wsInv.EnumerateServiceMethods("OIMSServiceClient");
-
-            for (int i = 0; i < mthdList.Count; i++)
+            string oimsNd = "10.1.173.147";
+            //foreach (string oimsNd in mListOfOIMSNode)
+            while (1!= 1)
             {
-                //Console.WriteLine(mthdList[i]);
+                string uriLink = "http://" + oimsNd + "/OIMS/OIMSService.svc";
+                System.Uri uri = new Uri(uriLink);
+                WebServiceInvoker wsInv = new WebServiceInvoker(uri);
+
+                List<string> mthdList = new List<string>();
+                mthdList = wsInv.EnumerateServiceMethods("OIMSServiceClient");
+
+                for (int i = 0; i < mthdList.Count; i++)
+                {
+                    //Console.WriteLine(mthdList[i]);
+                }
+
+                string str = wsInv.InvokeMethod<string>("OIMSServiceClient", "GetData", new object[] { 32 });
+                Console.WriteLine("===============================");
+                Console.WriteLine(str);
+
+                dynamic cmpTyp1 = new object();
+                cmpTyp1 = wsInv.InvokeMethod<dynamic>("OIMSServiceClient", "GetDataUsingDataContract", null);
+
+                Type str1 = cmpTyp1.GetType();
+
+                Console.WriteLine("cmpTyp1.BoolValue=== " + cmpTyp1.BoolValue);
+                Console.WriteLine("cmpTyp1.StringValue====" + cmpTyp1.StringValue);
+
+                dynamic dyn_mListofOIMSreturnedIOTNodeData = new object();
+
+                dyn_mListofOIMSreturnedIOTNodeData = wsInv.InvokeMethod<dynamic>("OIMSServiceClient", "GetIOTNodeData", null);
+                /**
+                System.Uri uri1 = new Uri("http://localhost/IOTNodesvc/IOTNodesvc.svc");
+                WebServiceInvoker wsInv1 = new WebServiceInvoker(uri1);
+
+                List<string> mthdList1 = new List<string>();
+                mthdList1 = wsInv1.EnumerateServiceMethods("IOTNodesvcClient");
+                dyn_mListofOIMSreturnedIOTNodeData = wsInv1.InvokeMethod<dynamic>("IOTNodesvcClient", "GetIoTNodeData", null);
+                **/
+
+                int x = dyn_mListofOIMSreturnedIOTNodeData.Length;
+                int y = 0;
+
+                while (x > y)
+                {
+                    //populate IOT--NodeDEtails 
+                    IOTNodeData iotNdData = new IOTNodeData();
+
+                    iotNdData.StrIotNodeId = dyn_mListofOIMSreturnedIOTNodeData[y].StrIoTNodeId;
+                    iotNdData.SensorId = dyn_mListofOIMSreturnedIOTNodeData[y].SensorId;
+                    iotNdData.SenValue = dyn_mListofOIMSreturnedIOTNodeData[y].SenValue;
+
+                    mListofOIMSreturnedIOTNodeData.Add(iotNdData);
+
+                    y++;
+                }
             }
 
-            string str = wsInv.InvokeMethod<string>("OIMSServiceClient", "GetData", new object[] { 32 });
-            Console.WriteLine("===============================");
-            Console.WriteLine(str);
-
-            dynamic cmpTyp1 = new object(); 
-            cmpTyp1= wsInv.InvokeMethod<dynamic>("OIMSServiceClient", "GetDataUsingDataContract", null); 
-
-            var type = cmpTyp1.Type();
-
-            Console.WriteLine("======= type=====================" + type);
-
-            Console.WriteLine("cmpTyp1.BoolValue=== " + cmpTyp1.BoolValue);
-            Console.WriteLine("cmpTyp1.StringValue====" + cmpTyp1.StringValue);
-
-            /*dynamic cmpTyp2 = new object ();
-
-                      cmpTyp2 = wsInv.InvokeMethod<dynamic>("OIMSServiceClient", "GetIOTNodeData", null);
-                        //cmpType2 is of IOTNodeData type..
-                        Console.WriteLine("cmpTyp2.iot-node-ID === " + cmpTyp2[0].strIOTNodeId);
-                        Console.WriteLine("cmpTyp2. sensor Data ID === " + cmpTyp2[0].sensorData[0].sensorId);
-                        Console.WriteLine("cmpTyp2. sensor Data value === " + cmpTyp2[0].sensorData[0].value);
-            */
-            System.Uri uri1 = new Uri("http://localhost/IOTNodesvc/IOTNodesvc.svc");
-            WebServiceInvoker wsInv1 = new WebServiceInvoker(uri1);
-
-            List<string> mthdList1 = new List<string>();
-            mthdList1 = wsInv1.EnumerateServiceMethods("IOTNodesvcClient");
-
-            for (int i = 0; i < mthdList1.Count; i++)
-                Console.WriteLine(mthdList1[i]);
-
-            dynamic cmpTyp2 = new object();
-            cmpTyp2 = wsInv1.InvokeMethod<dynamic>("IOTNodesvcClient", "GetIotData", null);
-
-            Console.WriteLine("...cmpTyp2[0].StrIotNodeId===  " + cmpTyp2[0].StrIotNodeId);
-            Console.WriteLine("...cmpTyp2[0].sensorId==== " + cmpTyp2[0].SensorId);
-            Console.WriteLine("...cmpTyp2[0].value==== " + cmpTyp2[0].Value);
-            Console.WriteLine("...cmpTyp2[0].sensorId==== " + cmpTyp2[1].SensorId);
-            Console.WriteLine("...cmpTyp2[0].value==== " + cmpTyp2[1].Value);
-            Console.WriteLine("...cmpTyp2[0].sensorId==== " + cmpTyp2[2].SensorId);
-            Console.WriteLine("...cmpTyp2[0].value==== " + cmpTyp2[2].Value);
-
+            fillDummyData("Oims-10.1.173.147");
+            fillDummyData("Oims-10.1.173.141");
+            populateDashboard();
 
         } // AcquireOIMSData_Click method..
+
+
+        private void fillDummyData(string arg_oimsID)
+        {
+            int x = 10, y = 0;
+
+            while (x > y)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    //populate IOT--NodeDEtails 
+                    IOTNodeData iotNdData = new IOTNodeData();
+                    iotNdData.OimsId = arg_oimsID;
+                    iotNdData.StrIotNodeId = "NODE-ID-" + Convert.ToString(y);
+                    iotNdData.SensorId = "SensId" + Convert.ToString(i);
+                    iotNdData.SenValue = Convert.ToString(i);
+
+                    mListofOIMSreturnedIOTNodeData.Add(iotNdData);
+                }
+
+                y++;
+            }
+        } //end fillDummyData
+
+        void clearDashboard()
+        {
+            mOIMSTreeView.Nodes.Clear();
+        }
+
+        void populateDashboard()
+        {
+            for (int i=0; i<  mListofOIMSreturnedIOTNodeData.Count; i++)
+            {
+                TreeNode treeOimsNode = new TreeNode(mListofOIMSreturnedIOTNodeData[i].OimsId);
+                mOIMSTreeView.Nodes.Add(treeOimsNode);
+
+                //now add all the IOT-Nodes of this OIMS..middleware..
+                int count = i;
+                bool firstTimeSeeingTheIOTNodeID = true;
+                for (;;)
+                {
+                    
+                    //check not at end of data buffer..
+                    if (count >= mListofOIMSreturnedIOTNodeData.Count)
+                    {
+                        //reached end of buffer..
+                        break;
+                    }
+
+                    //first add IOTNodeID under OIMS Id...
+                    if (firstTimeSeeingTheIOTNodeID)
+                    {
+                        TreeNode childNode = new TreeNode(mListofOIMSreturnedIOTNodeData[count].strIotNodeId);
+                        treeOimsNode.Nodes.Add(childNode);
+                        firstTimeSeeingTheIOTNodeID = false;
+                    }
+
+                    //check if the next sensor also from the same IOT-node; if yes ...skip..
+                    if ((count + 1 == mListofOIMSreturnedIOTNodeData.Count) || 
+                        (String.Compare(mListofOIMSreturnedIOTNodeData[count].StrIotNodeId, mListofOIMSreturnedIOTNodeData[count+1].StrIotNodeId) ==0))
+                    {
+                        //skip the same IOT nodeID
+                            count++;
+                            continue;
+                    }
+
+                    firstTimeSeeingTheIOTNodeID = true;
+                    if ((count + 1 == mListofOIMSreturnedIOTNodeData.Count) ||
+                            (String.Compare(mListofOIMSreturnedIOTNodeData[count].OimsId, mListofOIMSreturnedIOTNodeData[count + 1].OimsId) != 0))
+                    {
+                        //do not skip; we have come to next OIMS servicer & its IOTNode's data..
+
+                        break;
+                    }
+                    else
+                    {
+                        count++;
+                    }
+                }
+                //reached end of one OIMS sensor list data..now go on to next OIMS data buffer array..
+                i = count;
+
+            }//end of for loop
+
+        }//end of populate-dashboard function
     }
 }
 
 
-
-/**
- {
-String uriStr = "http://" + "192.168.1.36" + "/IOTNodesvc/IOTNodesvc.svc";
-System.Uri uri1 = new Uri(uriStr);
-
-//create webservice invoker...
-WebServiceInvoker wsInv1 = new WebServiceInvoker(uri1);
-
-//enumerate webservice methods...
-List<string> mthdList1 = new List<string>();
-mthdList1 = wsInv1.EnumerateServiceMethods("IOTNodesvcClient");
-
-//...print webservice methods of IOTNodesvc
-
-//for (int i = 0; i < mthdList1.Count ;  i++) {
- //   Console.WriteLine(mthdList[i]);
-//}
-
-//invoke IOT-node websvc to gather data..
-dynamic cmpTyp2 = new object();
-cmpTyp2 = wsInv1.InvokeMethod<dynamic>("IOTNodesvcClient", "GetIotData", null);
-
-***/
-
-
-/***
-            var list = new List<IOTNodeData>();
-            string[] ipAddrList = { "localhost", "localhost" };
-            System.Net.WebClient client = new System.Net.WebClient();
-
-            for (int i = 0; i < 2; i++)
-            {
-                string url = "http://" + ipAddrList[i] + ":12926/OIMSService.svc?wsdl";
-                //:10814/IOTNodesvc.svc?wsdl
-                //System.IO.Stream stream = client.OpenRead("http://192.168.137.230/add1.asmx?wsdl");
-
-                System.IO.Stream stream = client.OpenRead(url);
-                // Get a WSDL file describing a service.
-
-                ServiceDescription description = ServiceDescription.Read(stream);
-
-                // Initialize a service description importer.
-
-                ServiceDescriptionImporter importer = new ServiceDescriptionImporter();
-
-                importer.ProtocolName = "Soap12";  // Use SOAP 1.2.
-                importer.AddServiceDescription(description, null, null);
-
-
-                // Report on the service descriptions.
-                MessageBox.Show("Importing { 0} service descriptions with { 1} associated schemas." + importer.ServiceDescriptions.Count + importer.Schemas.Count);
-
-                // Generate a proxy client.
-                importer.Style = ServiceDescriptionImportStyle.Client;
-
-
-                // Generate properties to represent primitive values.
-                importer.CodeGenerationOptions = System.Xml.Serialization.CodeGenerationOptions.GenerateProperties;
-
-                // Initialize a Code-DOM tree into which we will import the service.
-                CodeNamespace nmspace = new CodeNamespace();
-                CodeCompileUnit unit1 = new CodeCompileUnit();
-
-                unit1.Namespaces.Add(nmspace);
-
-                // Import the service into the Code-DOM tree. This creates proxy code
-                // that uses the service.
-
-                ServiceDescriptionImportWarnings warning = importer.Import(nmspace, unit1);
-                if (warning == 0)
-                {
-                    // Generate and print the proxy code in C#.
-                    CodeDomProvider provider1 = CodeDomProvider.CreateProvider("CSharp");
-                    // Compile the assembly with the appropriate references
-                    string[] assemblyReferences = new string[2] { "System.Web.Services.dll", "System.Xml.dll" };
-                    CompilerParameters parms = new CompilerParameters(assemblyReferences);
-                    CompilerResults results = provider1.CompileAssemblyFromDom(parms, unit1);
-                    foreach (CompilerError oops in results.Errors)
-                    {
-                        MessageBox.Show("======== Compiler error ============");
-                        MessageBox.Show(oops.ErrorText);
-                    }
-                    //Invoke the web service method
-                    object objWS = results.CompiledAssembly.CreateInstance("OIMSService");
-                    Type t = objWS.GetType();
-                    //Console.WriteLine(t.InvokeMember("HelloWorld", System.Reflection.BindingFlags.InvokeMethod, null, objWS, null //i/p object//));
-                    //MessageBox.Show("add  value is   " + t.InvokeMember("GetIotData", System.Reflection.BindingFlags.InvokeMethod, null, objWS, new Object[] { 32, 32 }));
-
-                    object objData = t.InvokeMember("GetIOTNodeData", System.Reflection.BindingFlags.InvokeMethod, null, objWS, null);
-
-                    IOTNodeData iotNodeData = (IOTNodeData)objData;
-
-
-                    Console.WriteLine(iotNodeData.boolValue);
-                    Console.WriteLine(iotNodeData.strIOTNodeId);
-
-                }
-                else
-                {
-                    // Print an error message.
-                    Console.WriteLine("Warning: " + warning);
-                }
-
-            }//end  of  loop
-}
-****/
