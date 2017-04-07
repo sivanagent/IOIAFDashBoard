@@ -37,7 +37,7 @@
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.mSensorDataListView1 = new System.Windows.Forms.ListView();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -136,7 +136,7 @@
             // 
             // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.listBox1);
+            this.tabPage3.Controls.Add(this.mSensorDataListView1);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
@@ -145,13 +145,13 @@
             this.tabPage3.Text = "Sensor Data List View";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // listBox1
+            // mSensorDataListView1
             // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(6, 5);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(407, 225);
-            this.listBox1.TabIndex = 0;
+            this.mSensorDataListView1.Location = new System.Drawing.Point(6, 7);
+            this.mSensorDataListView1.Name = "mSensorDataListView1";
+            this.mSensorDataListView1.Size = new System.Drawing.Size(436, 296);
+            this.mSensorDataListView1.TabIndex = 0;
+            this.mSensorDataListView1.UseCompatibleStateImageBehavior = false;
             // 
             // tabPage4
             // 
@@ -195,8 +195,8 @@
         private System.Windows.Forms.TabControl tabControl2;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.TabPage tabPage4;
-        private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.TabPage tabPage5;
+        private System.Windows.Forms.ListView mSensorDataListView1;
     }
 }
 

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Security.Permissions;
@@ -29,10 +30,21 @@ namespace IOIAFDashBoard
         {
             InitializeComponent();
 
+            //iot to do menu
+
+            mSensorDataListView1.Columns.Add("OIMS-Id", -2, HorizontalAlignment.Left);
+            mSensorDataListView1.Columns.Add("Node-Id", -2, HorizontalAlignment.Left);
+            mSensorDataListView1.Columns.Add("Sensor-Id", -2, HorizontalAlignment.Left);
+            mSensorDataListView1.Columns.Add("Value", -2, HorizontalAlignment.Left);
+            mSensorDataListView1.Columns.Add("TimeStamp", -2, HorizontalAlignment.Left);
+            mSensorDataListView1.View = View.Details;
+            
             //ioiafconfig.ini
             mOIMSConfigFile = new iniFileReader();
             mOIMSConfigFile.IniParser("d:\\ioiafconfig.ini");
             mListOfOIMSNode = mOIMSConfigFile.EnumSection("ListofOIMS");
+
+
 
         }
 
@@ -41,7 +53,7 @@ namespace IOIAFDashBoard
             
             clearDashboard();
 
-            string oimsNd = "10.1.173.147";
+            string oimsNd = "Oims-10.1.173.147";
             //foreach (string oimsNd in mListOfOIMSNode)
             while (1!= 1)
             {
@@ -94,6 +106,7 @@ namespace IOIAFDashBoard
                     iotNdData.SenValue = dyn_mListofOIMSreturnedIOTNodeData[y].SenValue;
 
                     mListofOIMSreturnedIOTNodeData.Add(iotNdData);
+                    
 
                     y++;
                 }
@@ -101,7 +114,9 @@ namespace IOIAFDashBoard
 
             fillDummyData("Oims-10.1.173.147");
             fillDummyData("Oims-10.1.173.141");
-            populateDashboard();
+
+            populateDashboardOIMSAndTheirAttachedIoTNodeList();
+            populateDashboardIoTNodeDataListControl();
 
         } // AcquireOIMSData_Click method..
 
@@ -109,7 +124,6 @@ namespace IOIAFDashBoard
         private void fillDummyData(string arg_oimsID)
         {
             int x = 10, y = 0;
-
             while (x > y)
             {
                 for (int i = 0; i < 4; i++)
@@ -121,9 +135,8 @@ namespace IOIAFDashBoard
                     iotNdData.SensorId = "SensId" + Convert.ToString(i);
                     iotNdData.SenValue = Convert.ToString(i);
 
-                    mListofOIMSreturnedIOTNodeData.Add(iotNdData);
+                    mListofOIMSreturnedIOTNodeData.Add(iotNdData);                 
                 }
-
                 y++;
             }
         } //end fillDummyData
@@ -133,7 +146,24 @@ namespace IOIAFDashBoard
             mOIMSTreeView.Nodes.Clear();
         }
 
-        void populateDashboard()
+
+        void populateDashboardIoTNodeDataListControl()
+        {
+            for (int i = 0; i < mListofOIMSreturnedIOTNodeData.Count; i++)
+            {
+                string[] strarray = {mListofOIMSreturnedIOTNodeData[i].OimsId,
+                mListofOIMSreturnedIOTNodeData[i].StrIotNodeId,
+                mListofOIMSreturnedIOTNodeData[i].SensorId,
+                mListofOIMSreturnedIOTNodeData[i].SenValue,
+                "YY:MM:DD:HH:MM:SS" };
+                ListViewItem lvt = new ListViewItem(strarray);
+
+                mSensorDataListView1.Items.Add(lvt);
+            }
+        }
+
+
+        void populateDashboardOIMSAndTheirAttachedIoTNodeList()
         {
             for (int i=0; i<  mListofOIMSreturnedIOTNodeData.Count; i++)
             {
@@ -145,7 +175,6 @@ namespace IOIAFDashBoard
                 bool firstTimeSeeingTheIOTNodeID = true;
                 for (;;)
                 {
-                    
                     //check not at end of data buffer..
                     if (count >= mListofOIMSreturnedIOTNodeData.Count)
                     {
@@ -175,7 +204,6 @@ namespace IOIAFDashBoard
                             (String.Compare(mListofOIMSreturnedIOTNodeData[count].OimsId, mListofOIMSreturnedIOTNodeData[count + 1].OimsId) != 0))
                     {
                         //do not skip; we have come to next OIMS servicer & its IOTNode's data..
-
                         break;
                     }
                     else
@@ -187,9 +215,9 @@ namespace IOIAFDashBoard
                 i = count;
 
             }//end of for loop
+        }//end of populate-dashboard function  
+    } //end of IOIAFDashBoard class
 
-        }//end of populate-dashboard function
-    }
-}
+} //end of namespace...
 
 

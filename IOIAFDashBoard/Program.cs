@@ -45,8 +45,8 @@ namespace IOIAFDashBoard
 
         public string SenValue
         {
-            get { return SenValue; }
-            set { value = value; }
+            get { return senValue; }
+            set { senValue = value; }
         }
     }//end of IOTNodeData
 
